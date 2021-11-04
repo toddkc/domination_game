@@ -166,6 +166,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 12ab62e33efbeff4f95856b55ff43f78, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  startingScore: 10
+  scoreCheckDelay: 3
+  maxPointsPerCheck: 5
+  redScore: 0
+  blueScore: 0
 --- !u!1001 &66231915
 PrefabInstance:
   m_ObjectHideFlags: 0

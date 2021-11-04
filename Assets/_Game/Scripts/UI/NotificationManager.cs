@@ -11,6 +11,8 @@ public class NotificationManager : MonoBehaviour
     [SerializeField] private GameObject displayPanel;
     [SerializeField] private Text displayText;
 
+    [SerializeField] private bool debugNotifications = false;
+
     private WaitForSeconds messageShow;
     private WaitForSeconds messageTransition;
 
@@ -21,7 +23,7 @@ public class NotificationManager : MonoBehaviour
 
     private void Awake()
     {
-        if(Instance == null)
+        if (Instance == null)
         {
             Instance = this;
             notifQueue = new Queue<string>();
@@ -35,17 +37,17 @@ public class NotificationManager : MonoBehaviour
         }
     }
 
-    // TODO: remove this
-    int testCounter = 0;
-    private void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-            testCounter++;
-            AddNotification("test " + testCounter);
-        }
-    }
-    // end TODO
+    //// TODO: remove this
+    //int testCounter = 0;
+    //private void Update()
+    //{
+    //    if (Input.GetKeyDown(KeyCode.Space))
+    //    {
+    //        testCounter++;
+    //        AddNotification("test " + testCounter);
+    //    }
+    //}
+    //// end TODO
 
     public bool AddNotification(string notif)
     {
@@ -54,6 +56,8 @@ public class NotificationManager : MonoBehaviour
             return false;
         }
 
+        if (debugNotifications) Debug.Log(notif);
+        
         notifQueue.Enqueue(notif);
 
         if (!isRunning)
@@ -68,7 +72,7 @@ public class NotificationManager : MonoBehaviour
 
     public bool GetNextNotification(ref string notif)
     {
-        if(notifQueue.Count == 0)
+        if (notifQueue.Count == 0)
         {
             return false;
         }
@@ -88,7 +92,7 @@ public class NotificationManager : MonoBehaviour
         isRunning = true;
         string notif = string.Empty;
 
-        while(GetNextNotification(ref notif))
+        while (GetNextNotification(ref notif))
         {
             yield return messageTransition;
             displayText.text = notif;
