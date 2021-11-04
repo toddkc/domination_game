@@ -13,12 +13,10 @@ public class TeamSetup : MonoBehaviour
     [Header("Settings")]
     [SerializeField] private int teamSize;
 
+    /// <summary>
+    /// Spawn players for each team randomly inside their spawn area.
+    /// </summary>
     private void Start()
-    {
-        InitialTeamSpawn();
-    }
-
-    private void InitialTeamSpawn()
     {
         for (int i = 0; i < teamSize; i++)
         {

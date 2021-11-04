@@ -1,40 +1,34 @@
+using System;
 using UnityEngine;
 
 public class CapturePoint : MonoBehaviour
 {
     // TODO: convert these to SOs
+    [Header("Settings")]
     [SerializeField] private char captureName;
     [SerializeField] private float captureTime = 5;
-    [SerializeField] private float scoreTime = 3;
+    [SerializeField] private bool logTriggerEvents = false;
+
+    [Header("Materials")]
     [SerializeField] private Material redTeamMaterial;
     [SerializeField] private Material blueTeamMaterial;
-    [SerializeField] private Material defaultMaterial;
     [SerializeField] private Renderer teamRenderer;
 
     private float redTime = 0;
     private int redPlayers = 0;
-
     private float blueTime = 0;
     private int bluePlayers = 0;
 
     private Team capturedTeam = Team.None;
 
-    private WaitForSeconds scoreWait;
+    public Action<Team> OnPointCaptured;
+
+    public char GetName { get { return captureName; } }
 
     /// <summary>
     /// Returns the team that currently has this point captured.
     /// </summary>
     public Team GetOwningTeam { get { return capturedTeam; } }
-
-    private void Awake()
-    {
-        scoreWait = new WaitForSeconds(scoreTime);
-    }
-
-    private void Start()
-    {
-        GameManager.Instance.RegisterCapturePoint(this);
-    }
 
     /// <summary>
     /// Adds the player that entered to the players counted for capturing.
@@ -46,8 +40,12 @@ public class CapturePoint : MonoBehaviour
         if (player == null) return;
 
         var team = player.GetPlayerTeam;
-        string notif = team + " player entered capture point " + captureName;
-        NotificationManager.Instance.AddNotification(notif);
+
+        if (logTriggerEvents)
+        {
+            string notif = team + " player entered capture point " + captureName;
+            NotificationManager.Instance.AddNotification(notif);
+        }
 
         if (team == Team.Blue)
         {
@@ -72,8 +70,12 @@ public class CapturePoint : MonoBehaviour
         if (player == null) return;
 
         var team = player.GetPlayerTeam;
-        string notif = team + " player exited capture point " + captureName;
-        NotificationManager.Instance.AddNotification(notif);
+
+        if (logTriggerEvents)
+        {
+            string notif = team + " player exited capture point " + captureName;
+            NotificationManager.Instance.AddNotification(notif);
+        }
 
         if (team == Team.Blue)
         {
@@ -93,7 +95,7 @@ public class CapturePoint : MonoBehaviour
         Debug.Log("Red Players: " + redPlayers);
     }
 
-    // TODO: this will probably always be able to be improved
+    // TODO: this can probably be improved (capture point update method)
     private void Update()
     {
         if (bluePlayers == redPlayers)
@@ -139,6 +141,9 @@ public class CapturePoint : MonoBehaviour
         NotificationManager.Instance.AddNotification(notif);
 
         capturedTeam = newOwningTeam;
+
+        OnPointCaptured?.Invoke(capturedTeam);
+
         if (newOwningTeam == Team.Blue)
         {
             teamRenderer.material = blueTeamMaterial;

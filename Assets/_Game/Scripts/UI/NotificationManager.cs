@@ -29,25 +29,12 @@ public class NotificationManager : MonoBehaviour
             notifQueue = new Queue<string>();
             messageShow = new WaitForSeconds(messageShowDelay);
             messageTransition = new WaitForSeconds(messageTransitionDelay);
-            AddNotification("Notifications enabled.");
         }
         else
         {
             Destroy(gameObject);
         }
     }
-
-    //// TODO: remove this
-    //int testCounter = 0;
-    //private void Update()
-    //{
-    //    if (Input.GetKeyDown(KeyCode.Space))
-    //    {
-    //        testCounter++;
-    //        AddNotification("test " + testCounter);
-    //    }
-    //}
-    //// end TODO
 
     public bool AddNotification(string notif)
     {

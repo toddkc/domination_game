@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class GameManager : MonoBehaviour
@@ -14,7 +15,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] private int blueScore;
 
     private float scoreCheckTimer = 0;
-    private List<CapturePoint> capturePoints = new List<CapturePoint>();
+    private List<CapturePoint> capturePoints;
     private bool isGameRunning = false;
 
     private void Awake()
@@ -31,11 +32,8 @@ public class GameManager : MonoBehaviour
 
     private void Start()
     {
+        capturePoints = FindObjectsOfType<CapturePoint>().ToList();
         redScore = blueScore = startingScore;
-
-        Debug.Log("Red Team Score: " + redScore);
-        Debug.Log("Blue Team Score: " + blueScore);
-
         isGameRunning = true;
     }
 
@@ -53,16 +51,6 @@ public class GameManager : MonoBehaviour
             CheckPoints();
             scoreCheckTimer = 0;
         }
-    }
-
-    /// <summary>
-    /// Adds a capture point to the game manager for tracking.
-    /// </summary>
-    /// <param name="point">The point.</param>
-    public void RegisterCapturePoint(CapturePoint point)
-    {
-        if (capturePoints.Contains(point)) return;
-        capturePoints.Add(point);
     }
 
     /// <summary>
