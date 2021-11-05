@@ -1,15 +1,16 @@
 using System;
 using UnityEngine;
+using ScriptableObjectArchitecture;
 
 public class CapturePoint : MonoBehaviour
 {
-    // TODO: convert these to SOs
     [Header("Settings")]
     [SerializeField] private char captureName;
-    [SerializeField] private float captureTime = 5;
-    [SerializeField] private bool logTriggerEvents = false;
+    [SerializeField] private FloatReference captureTime;
+    [SerializeField] private BoolReference logTriggerEvents;
 
     [Header("Materials")]
+    [SerializeField] private Material defaultMaterial;
     [SerializeField] private Material redTeamMaterial;
     [SerializeField] private Material blueTeamMaterial;
     [SerializeField] private Renderer teamRenderer;
@@ -41,7 +42,7 @@ public class CapturePoint : MonoBehaviour
 
         var team = player.GetPlayerTeam;
 
-        if (logTriggerEvents)
+        if (logTriggerEvents.Value)
         {
             string notif = team + " player entered capture point " + captureName;
             NotificationManager.Instance.AddNotification(notif);
@@ -71,7 +72,7 @@ public class CapturePoint : MonoBehaviour
 
         var team = player.GetPlayerTeam;
 
-        if (logTriggerEvents)
+        if (logTriggerEvents.Value)
         {
             string notif = team + " player exited capture point " + captureName;
             NotificationManager.Instance.AddNotification(notif);
@@ -105,26 +106,34 @@ public class CapturePoint : MonoBehaviour
 
         if (bluePlayers > redPlayers)
         {
-            if (blueTime < captureTime)
+            if (blueTime < captureTime.Value)
             {
                 blueTime += Time.deltaTime;
                 redTime -= Time.deltaTime;
                 redTime = redTime < 0 ? 0 : redTime;
             }
-            else if (blueTime >= captureTime && capturedTeam != Team.Blue)
+            else if (blueTime >= captureTime.Value && capturedTeam == Team.Red)
+            {
+                PointLost();
+            }
+            else if (blueTime >= captureTime.Value && capturedTeam == Team.None)
             {
                 PointCaptured(Team.Blue);
             }
         }
         else if (redPlayers > bluePlayers)
         {
-            if (redTime < captureTime)
+            if (redTime < captureTime.Value)
             {
                 redTime += Time.deltaTime;
                 blueTime -= Time.deltaTime;
                 blueTime = blueTime < 0 ? 0 : blueTime;
             }
-            else if (redTime >= captureTime && capturedTeam != Team.Red)
+            else if (redTime >= captureTime.Value && capturedTeam == Team.Blue)
+            {
+                PointLost();
+            }
+            else if (redTime >= captureTime.Value && capturedTeam == Team.None)
             {
                 PointCaptured(Team.Red);
             }
@@ -154,6 +163,23 @@ public class CapturePoint : MonoBehaviour
             teamRenderer.material = redTeamMaterial;
             blueTime = 0;
         }
+    }
+
+    /// <summary>
+    /// Called when a team has been in the point long enough that the opposing team loses it.
+    /// </summary>
+    private void PointLost()
+    {
+        string notif = capturedTeam + " lost Point " + captureName;
+        NotificationManager.Instance.AddNotification(notif);
+
+        capturedTeam = Team.None;
+
+        OnPointCaptured?.Invoke(capturedTeam);
+
+        teamRenderer.material = defaultMaterial;
+        redTime = 0;
+        blueTime = 0;
     }
 
     /// <summary>

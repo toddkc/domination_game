@@ -1,5 +1,6 @@
 using UnityEngine;
 
+// TODO: work out capture progress display logic
 public class CapturePointDisplay : MonoBehaviour
 {
     [SerializeField] private GameObject captureProgressDisplay;

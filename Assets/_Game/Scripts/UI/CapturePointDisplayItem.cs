@@ -35,5 +35,9 @@ public class CapturePointDisplayItem : MonoBehaviour
         {
             image.color = Color.blue;
         }
+        else if (team == Team.None)
+        {
+            image.color = Color.green;
+        }
     }
 }

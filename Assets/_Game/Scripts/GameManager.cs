@@ -1,18 +1,23 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using ScriptableObjectArchitecture;
 
 public class GameManager : MonoBehaviour
 {
     public static GameManager Instance;
 
-    [SerializeField] private int startingScore = 100;
-    [SerializeField] private float scoreCheckDelay = 3;
-    [SerializeField] private int maxPointsPerCheck = 5;
+    [SerializeField] private IntReference startingScore;
+    [SerializeField] private FloatReference scoreCheckDelay;
+    [SerializeField] private IntReference maxPointsPerCheck;
 
+    // TODO: remove these
     [Header("For debug only...")]
     [SerializeField] private int redScore;
     [SerializeField] private int blueScore;
+
+    [SerializeField] private IntReference redScoreRef;
+    [SerializeField] private IntReference blueScoreRef;
 
     private float scoreCheckTimer = 0;
     private List<CapturePoint> capturePoints;
@@ -33,7 +38,8 @@ public class GameManager : MonoBehaviour
     private void Start()
     {
         capturePoints = FindObjectsOfType<CapturePoint>().ToList();
-        redScore = blueScore = startingScore;
+        redScore = blueScore = startingScore.Value;
+        redScoreRef.Value = blueScoreRef.Value = startingScore.Value;
         isGameRunning = true;
     }
 
@@ -46,7 +52,7 @@ public class GameManager : MonoBehaviour
         if (!isGameRunning) return;
 
         scoreCheckTimer += Time.deltaTime;
-        if (scoreCheckTimer >= scoreCheckDelay)
+        if (scoreCheckTimer >= scoreCheckDelay.Value)
         {
             CheckPoints();
             scoreCheckTimer = 0;
@@ -70,12 +76,20 @@ public class GameManager : MonoBehaviour
 
         float highTeam = _blue > _red ? _blue : _red;
         float percentage = highTeam / capturePoints.Count;
-        int points = (int)(percentage * maxPointsPerCheck);
+        int points = (int)(percentage * maxPointsPerCheck.Value);
 
-        if (_blue > _red) redScore -= points;
-        else if (_blue < _red) blueScore -= points;
+        if (_blue > _red)
+        {
+            redScore -= points;
+            redScoreRef.Value -= points;
+        }
+        else if (_blue < _red)
+        {
+            blueScore -= points;
+            blueScoreRef.Value -= points;
+        }
 
-        if (redScore <= 0 || blueScore <= 0)
+        if (redScoreRef.Value <= 0 || blueScoreRef.Value <= 0)
         {
             CheckScoreGameOver();
         }
@@ -86,7 +100,7 @@ public class GameManager : MonoBehaviour
     /// </summary>
     private void CheckScoreGameOver()
     {
-        if (redScore > 0 && blueScore > 0)
+        if (redScoreRef.Value > 0 && blueScoreRef.Value > 0)
         {
             Debug.LogError("GameManager thinks game is over, but it is not?", this);
             return;
@@ -94,16 +108,16 @@ public class GameManager : MonoBehaviour
 
         string notif = string.Empty;
 
-        if (redScore <= 0 && blueScore <= 0)
+        if (redScoreRef.Value <= 0 && blueScoreRef.Value <= 0)
         {
             notif = "Game Over - No Winner";
         }
 
-        if (redScore <= 0)
+        if (redScoreRef.Value <= 0)
         {
             notif = "Game Over - Blue Team Wins";
         }
-        else if (blueScore <= 0)
+        else if (blueScoreRef.Value <= 0)
         {
             notif = "Game Over - Red Team Wins";
         }

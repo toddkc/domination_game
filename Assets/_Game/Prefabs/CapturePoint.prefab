@@ -126,11 +126,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d572692a6fbfec6458398a7b68d24138, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  captureName: 0
-  captureTime: 5
+  captureName: 65
+  captureTime:
+    _useConstant: 0
+    _constantValue: 0
+    _variable: {fileID: 11400000, guid: 3c66ea608fd6d4142b66bb591a50d0b3, type: 2}
+  logTriggerEvents:
+    _useConstant: 0
+    _constantValue: 0
+    _variable: {fileID: 11400000, guid: b70fcaed9b75539458db34b3aa23233f, type: 2}
+  defaultMaterial: {fileID: 2100000, guid: 8a3e079f9ac49a84a88f6bd9b7bd4838, type: 2}
   redTeamMaterial: {fileID: 2100000, guid: 22c1d3ec364875b4493537137d7f8bbb, type: 2}
   blueTeamMaterial: {fileID: 2100000, guid: c11f096c1af44f04fa12033984c8f4b8, type: 2}
-  defaultMaterial: {fileID: 2100000, guid: 8a3e079f9ac49a84a88f6bd9b7bd4838, type: 2}
   teamRenderer: {fileID: 7815899282661407469}
 --- !u!65 &7815899283220584821
 BoxCollider:
