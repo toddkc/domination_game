@@ -10,18 +10,25 @@ public class GameManager : MonoBehaviour
     [SerializeField] private IntReference startingScore;
     [SerializeField] private FloatReference scoreCheckDelay;
     [SerializeField] private IntReference maxPointsPerCheck;
+    [SerializeField] private FloatReference pauseTimescale;
+
+    [SerializeField] private IntReference redScoreRef;
+    [SerializeField] private IntReference blueScoreRef;
+    
+    [SerializeField] private GameEvent togglePauseEvent;
 
     // TODO: remove these
     [Header("For debug only...")]
     [SerializeField] private int redScore;
     [SerializeField] private int blueScore;
 
-    [SerializeField] private IntReference redScoreRef;
-    [SerializeField] private IntReference blueScoreRef;
-
     private float scoreCheckTimer = 0;
     private List<CapturePoint> capturePoints;
     private bool isGameRunning = false;
+    private bool canPlayerToggleGameRunning = true;
+
+    public GameState GetGameState { get { return currentGameState; } }
+    private GameState currentGameState;
 
     private void Awake()
     {
@@ -41,6 +48,7 @@ public class GameManager : MonoBehaviour
         redScore = blueScore = startingScore.Value;
         redScoreRef.Value = blueScoreRef.Value = startingScore.Value;
         isGameRunning = true;
+        currentGameState = GameState.Running;
     }
 
     /// <summary>
@@ -110,21 +118,73 @@ public class GameManager : MonoBehaviour
 
         if (redScoreRef.Value <= 0 && blueScoreRef.Value <= 0)
         {
+            redScoreRef.Value = blueScoreRef.Value = 0;
             notif = "Game Over - No Winner";
         }
 
         if (redScoreRef.Value <= 0)
         {
+            redScoreRef.Value = 0;
             notif = "Game Over - Blue Team Wins";
         }
         else if (blueScoreRef.Value <= 0)
         {
+            blueScoreRef.Value = 0;
             notif = "Game Over - Red Team Wins";
         }
 
         NotificationManager.Instance.AddNotification(notif);
 
+        PauseGame(false);
+    }
+
+    /// <summary>
+    /// Pause the game time.
+    /// </summary>
+    public void PauseGame(bool canPlayerUnpause = true)
+    {
+        Time.timeScale = pauseTimescale.Value;
         isGameRunning = false;
+        canPlayerToggleGameRunning = canPlayerUnpause;
+
+        currentGameState = canPlayerToggleGameRunning ?
+            GameState.Paused :
+            GameState.End;
+
+        togglePauseEvent.Raise();
+    }
+
+    /// <summary>
+    /// Called when the player requests the game to be paused/resumed.
+    /// </summary>
+    public void RequestTogglePause()
+    {
+        if (!canPlayerToggleGameRunning) return;
+        if (isGameRunning)
+        {
+            PauseGame();
+        }
+        else
+        {
+            ResumeGame();
+        }
+    }
+
+    /// <summary>
+    /// Resumes the game time if player is allowed to unpause.
+    /// </summary>
+    public bool ResumeGame()
+    {
+        if (canPlayerToggleGameRunning)
+        {
+            Time.timeScale = 1;
+            isGameRunning = true;
+            currentGameState = GameState.Running;
+            togglePauseEvent.Raise();
+            return true;
+        }
+
+        return false;
     }
 }
 
@@ -136,4 +196,14 @@ public enum Team
     None = 0,
     Red = 1,
     Blue = 2
+}
+
+/// <summary>
+/// The state of the game.
+/// </summary>
+public enum GameState
+{
+    Running = 0,
+    Paused = 1,
+    End = 2
 }
