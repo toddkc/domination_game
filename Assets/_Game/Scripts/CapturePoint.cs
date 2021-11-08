@@ -23,6 +23,7 @@ public class CapturePoint : MonoBehaviour
     private Team capturedTeam = Team.None;
 
     public Action<Team> OnPointCaptured;
+    public new Transform transform { get; private set; }
 
     public char GetName { get { return captureName; } }
 
@@ -30,6 +31,11 @@ public class CapturePoint : MonoBehaviour
     /// Returns the team that currently has this point captured.
     /// </summary>
     public Team GetOwningTeam { get { return capturedTeam; } }
+
+    private void Awake()
+    {
+        transform = GetComponent<Transform>();
+    }
 
     /// <summary>
     /// Adds the player that entered to the players counted for capturing.
